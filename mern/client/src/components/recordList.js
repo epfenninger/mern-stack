@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Papa from "papaparse";
+const bcrypt = require("bcryptjs");
+
+const jsonRecords = [{ name: "", email: "", password: "" }];
 
 const Record = (props) => (
   <tr>
     <td>{props.record.name}</td>
-    <td>{props.record.position}</td>
-    <td>{props.record.level}</td>
+    <td>{props.record.email}</td>
+    <td style={{ webkitTextSecurity: "disc" }}>password</td>
     <td>
-      <Link className="btn btn-link" to={`/edit/${props.record._id}`}>Edit</Link> |
-      <button className="btn btn-link"
+      <Link className="btn btn-link" to={`/edit/${props.record._id}`}>
+        Edit
+      </Link>{" "}
+      |
+      <button
+        className="btn btn-link"
         onClick={() => {
           props.deleteRecord(props.record._id);
         }}
@@ -18,6 +26,39 @@ const Record = (props) => (
     </td>
   </tr>
 );
+
+async function submitRecord(record) {
+  // When a post request is sent to the create url, we'll add a new record to the database.
+  record.password = bcrypt.hashSync(record.password, 12);
+  console.log(record);
+  await fetch("http://localhost:5000/record/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(record),
+  }).catch((error) => {
+    window.alert(error);
+    return;
+  });
+}
+
+function parseFile(files) {
+  if (files) {
+    Papa.parse(files[0], {
+      complete: function (results) {
+        results.data.splice(1).map(function (item) {
+          let newRecord = {
+            name: item[0],
+            email: item[1],
+            password: item[2],
+          };
+          submitRecord(newRecord);
+        });
+      },
+    });
+  }
+}
 
 export default function RecordList() {
   const [records, setRecords] = useState([]);
@@ -39,13 +80,13 @@ export default function RecordList() {
 
     getRecords();
 
-    return; 
+    return;
   }, [records.length]);
 
   // This method will delete a record
   async function deleteRecord(id) {
     await fetch(`http://localhost:5000/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
     });
 
     const newRecords = records.filter((el) => el._id !== id);
@@ -73,13 +114,21 @@ export default function RecordList() {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Position</th>
-            <th>Level</th>
+            <th>Email</th>
+            <th>Password</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>{recordList()}</tbody>
       </table>
+      <input
+        type="file"
+        accept=".csv,.xlsx,.xls"
+        onChange={(e) => {
+          const files = e.target.files;
+          parseFile(files);
+        }}
+      />
     </div>
   );
 }

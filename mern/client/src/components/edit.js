@@ -4,8 +4,8 @@ import { useParams, useNavigate } from "react-router";
 export default function Edit() {
   const [form, setForm] = useState({
     name: "",
-    position: "",
-    level: "",
+    email: "",
+    password: "",
     records: [],
   });
   const params = useParams();
@@ -14,7 +14,9 @@ export default function Edit() {
   useEffect(() => {
     async function fetchData() {
       const id = params.id.toString();
-      const response = await fetch(`http://localhost:5000/record/${params.id.toString()}`);
+      const response = await fetch(
+        `http://localhost:5000/record/${params.id.toString()}`
+      );
 
       if (!response.ok) {
         const message = `An error has occured: ${response.statusText}`;
@@ -48,8 +50,8 @@ export default function Edit() {
     e.preventDefault();
     const editedPerson = {
       name: form.name,
-      position: form.position,
-      level: form.level,
+      email: form.email,
+      password: form.password,
     };
 
     // This will send a post request to update the data in the database.
@@ -57,7 +59,7 @@ export default function Edit() {
       method: "POST",
       body: JSON.stringify(editedPerson),
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
     });
 
@@ -80,53 +82,26 @@ export default function Edit() {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="position">Position: </label>
+          <label htmlFor="email">Email: </label>
           <input
             type="text"
             className="form-control"
-            id="position"
-            value={form.position}
-            onChange={(e) => updateForm({ position: e.target.value })}
+            id="email"
+            value={form.email}
+            onChange={(e) => updateForm({ email: e.target.value })}
           />
         </div>
         <div className="form-group">
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="positionOptions"
-              id="positionIntern"
-              value="Intern"
-              checked={form.level === "Intern"}
-              onChange={(e) => updateForm({ level: e.target.value })}
-            />
-            <label htmlFor="positionIntern" className="form-check-label">Intern</label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="positionOptions"
-              id="positionJunior"
-              value="Junior"
-              checked={form.level === "Junior"}
-              onChange={(e) => updateForm({ level: e.target.value })}
-            />
-            <label htmlFor="positionJunior" className="form-check-label">Junior</label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="positionOptions"
-              id="positionSenior"
-              value="Senior"
-              checked={form.level === "Senior"}
-              onChange={(e) => updateForm({ level: e.target.value })}
-            />
-            <label htmlFor="positionSenior" className="form-check-label">Senior</label>
+          <label htmlFor="password">Password </label>
+          <input
+            type="password"
+            className="form-control"
+            id="password"
+            value={form.password}
+            onChange={(e) => updateForm({ password: e.target.value })}
+          />
         </div>
-        </div>
+
         <br />
 
         <div className="form-group">
